@@ -49,10 +49,10 @@
 	</style>
 
 
-	<script src="http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dojo/dojo.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/dojo/1.6.1/dojo/dojo.js"></script>
 	<!-- work around so that you can test the demo using file:// uri -->
-	<script src="http://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dojo/NodeList-traverse.js"></script>
-	<script src="chosen-dojo.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/dojo/1.6.1/dojo/NodeList-traverse.js"></script>
+	<script src="chosen.js"></script>
 	<link rel="stylesheet" href="chosen.css" />
 </head>
 <body>
@@ -1395,7 +1395,7 @@
 			var select_object = dojo.byId('select1');
 			var select_div = dojo.byId('standard_msg');
 	    
-			select_div.innerHTML = 'Selected value = ' + dojo.getAttr(select_object, 'value');
+			select_div.innerHTML = 'Selected value = ' + dojo.attr(select_object, 'value');
         }
         
         function multiple_select_change() {
@@ -1417,7 +1417,7 @@
             var select_object = dojo.byId('select3');
             var select_div = dojo.byId('deselect_msg');
 	    
-            select_div.innerHTML = 'Selected value = ' + dojo.getAttr(select_object, 'value');
+            select_div.innerHTML = 'Selected value = ' + dojo.attr(select_object, 'value');
         }
 
 	</script>

@@ -1,10 +1,11 @@
+dojo.provide('chosen');
 dojo.require("dojo.NodeList-traverse");
 
 dojo.extend(dojo.NodeList, {
     chosen:function (options) {
         return this.forEach(function (element) {
             if (!dojo.hasClass(element, "chzn-done")) {
-                return new Chosen(element, options);
+                return new chosen.Chosen(element, options);
             }
         });
     },
@@ -13,7 +14,7 @@ dojo.extend(dojo.NodeList, {
 });
 
 function select_to_array() {
-    var parser = new SelectParser();
+    var parser = new chosen.SelectParser();
 
     dojo.query('>', this).forEach(function (child) {
         parser.add_node(child);
@@ -22,7 +23,7 @@ function select_to_array() {
     return parser.parsed;
 }
 
-dojo.declare("SelectParser", null, {
+dojo.declare("chosen.SelectParser", null, {
     constructor:function () {
         this.options_index = 0;
         this.parsed = [];
@@ -87,7 +88,7 @@ dojo.declare("SelectParser", null, {
     }
 });
 
-dojo.declare("Chosen", null, {
+dojo.declare("chosen.Chosen", null, {
     constructor:function (element, options) {
         this.document_click_handle = null;
         this.form_field = element;
@@ -98,7 +99,7 @@ dojo.declare("Chosen", null, {
         this.choices = 0;
         this.result_single_selected = null;
         this.options = options != null ? options : {};
-        this.results_none_found = dojo.getAttr(this.form_field, 'data-no_results_text') || this.options.no_results_text || "No results match";
+        this.results_none_found = dojo.attr(this.form_field, 'data-no_results_text') || this.options.no_results_text || "No results match";
         this.set_up_html();
         this.register_observers();
         dojo.addClass(this.form_field, 'chzn-done');
@@ -107,15 +108,15 @@ dojo.declare("Chosen", null, {
     },
 
     set_up_html:function () {
-        if (!dojo.getAttr(this.form_field, 'id')) {
-            dojo.setAttr(this.form_field, 'id', this.generate_random_id());
+        if (!dojo.attr(this.form_field, 'id')) {
+            dojo.attr(this.form_field, 'id', this.generate_random_id());
         }
 
         this.container_id = this.form_field.id.replace(/(:|\.)/g, '_') + "_chzn";
 
         this.f_width = dojo.position(this.form_field).w;
 
-        this.default_text = dojo.getAttr(this.form_field, 'data-placeholder') ? dojo.getAttr(this.form_field, 'data-placeholder') : "Select Some Options";
+        this.default_text = dojo.attr(this.form_field, 'data-placeholder') ? dojo.attr(this.form_field, 'data-placeholder') : "Select Some Options";
 
         this.container = dojo.create('div', {
             id:this.container_id,
@@ -129,7 +130,7 @@ dojo.declare("Chosen", null, {
             this.container.innerHTML = '<a href="javascript:void(0)" class="chzn-single"><span>' + this.default_text + '</span><div><b></b></div></a><div class="chzn-drop" style="left:-9000px;"><div class="chzn-search"><input type="text" autocomplete="off" /></div><ul class="chzn-results"></ul></div>';
         }
 
-        dojo.setStyle(this.form_field, 'display', 'none')
+        dojo.style(this.form_field, 'display', 'none')
         dojo.place(this.container, this.form_field, 'after');
 
         this.dropdown = dojo.query('div.chzn-drop', this.container).shift();
@@ -137,7 +138,7 @@ dojo.declare("Chosen", null, {
         var dd_top = dojo.position(this.container, false).h;
 
         var dd_width = this.f_width - (dojo.position(this.dropdown).w - dojo.contentBox(this.dropdown).w);
-        dojo.setStyle(this.dropdown, {
+        dojo.style(this.dropdown, {
             'width':dd_width + "px",
             'top':dd_top + "px"
         });
@@ -157,7 +158,7 @@ dojo.declare("Chosen", null, {
             this.selected_item = dojo.query('.chzn-single', this.container).shift();
 
             var sf_width = dd_width - (dojo.position(this.search_container).w - dojo.contentBox(this.search_container).w) - (dojo.position(this.search_field).w - dojo.contentBox(this.search_field).w);
-            dojo.setStyle(this.search_field, 'width', sf_width + 'px');
+            dojo.style(this.search_field, 'width', sf_width + 'px');
         }
 
         this.results_build();
@@ -397,6 +398,16 @@ dojo.declare("Chosen", null, {
         }
     },
 
+    keydown_backstroke: function() {
+        if (this.pending_backstroke) {
+            this.choice_destroy(dojo.query('a', this.pending_backstroke[0])[0]);
+            this.clear_backstroke();
+        } else {
+            this.pending_backstroke = dojo.query('li.search-choice', this.search_choices).last();
+            this.pending_backstroke.addClass('search-choice-focus');
+        }
+    },
+
     clear_backstroke:function () {
         if (this.pending_backstroke) {
             dojo.removeClass(this.pending_backstroke, "search-choice-focus");
@@ -469,7 +480,7 @@ dojo.declare("Chosen", null, {
             if (!this.is_multiple || !evt.control) {
                 this.results_hide();
             }
-            dojo.setAttr(this.search_field, 'value', "");
+            dojo.attr(this.search_field, 'value', "");
             this.dojo_fire_event("change");
 
             this.search_field_scale();
@@ -514,7 +525,7 @@ dojo.declare("Chosen", null, {
             if (!this.pending_destroy_click && !target_closelink) {
                 if (!this.active_field) {
                     if (this.is_multiple) {
-                        dojo.setAttr(this.search_field, 'value', '');
+                        dojo.attr(this.search_field, 'value', '');
                     }
 
                     this.document_click_handle = dojo.connect(document, 'click', this, 'test_active_click');
@@ -547,7 +558,7 @@ dojo.declare("Chosen", null, {
         }
 
         this.result_clear_highlight();
-        dojo.setStyle(this.dropdown, 'left', '-9000px');
+        dojo.style(this.dropdown, 'left', '-9000px');
         this.results_showing = false;
     },
 
@@ -571,7 +582,7 @@ dojo.declare("Chosen", null, {
 
         var dd_top = this.is_multiple ? dojo.position(this.container).h : dojo.position(this.container).h - 1;
 
-        dojo.setStyle(this.dropdown, {
+        dojo.style(this.dropdown, {
             top:dd_top + 'px',
             left:'0px'
         });
@@ -579,7 +590,7 @@ dojo.declare("Chosen", null, {
 
         this.results_showing = true;
         this.search_field.focus();
-        dojo.setAttr(this.search_field, 'value', dojo.getAttr(this.search_field, 'value'));
+        dojo.attr(this.search_field, 'value', dojo.attr(this.search_field, 'value'));
         this.winnow_results();
     },
 
@@ -587,7 +598,7 @@ dojo.declare("Chosen", null, {
         this.no_results_clear();
 
         var results = 0,
-            searchText = dojo.getAttr(this.search_field, 'value') === this.default_text ? "" : dojo.trim(dojo.getAttr(this.search_field, 'value')),
+            searchText = dojo.attr(this.search_field, 'value') === this.default_text ? "" : dojo.trim(dojo.attr(this.search_field, 'value')),
             regex = new RegExp('^' + searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i'),
             zregex = new RegExp(searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
 
@@ -596,7 +607,7 @@ dojo.declare("Chosen", null, {
         dojo.forEach(this.results_data, function (option) {
             if (!option.disabled && !option.empty) {
                 if (option.group) {
-                    dojo.setStyle(dojo.byId(option.dom_id), 'display', 'none');
+                    dojo.style(dojo.byId(option.dom_id), 'display', 'none');
                 } else if (!(_this.is_multiple && option.selected)) {
                     var found = false,
                         result_id = option.dom_id,
@@ -631,7 +642,7 @@ dojo.declare("Chosen", null, {
                         _this.result_activate(result);
 
                         if (option.group_array_index != null) {
-                            dojo.setStyle(dojo.byId(_this.results_data[option.group_array_index].dom_id), 'display', 'list-item');
+                            dojo.style(dojo.byId(_this.results_data[option.group_array_index].dom_id), 'display', 'list-item');
                         }
 
                     } else {
@@ -673,7 +684,7 @@ dojo.declare("Chosen", null, {
             this.result_clear_highlight();
             this.result_highlight = el;
             dojo.addClass(this.result_highlight, "highlighted");
-            var maxHeight = parseInt(dojo.getStyle(this.search_results, "maxHeight"), 10);
+            var maxHeight = parseInt(dojo.style(this.search_results, "maxHeight"), 10);
 
 
             var visible_top = this.search_results.scrollTop,
@@ -723,15 +734,15 @@ dojo.declare("Chosen", null, {
     },
 
     set_tab_index:function () {
-        if (dojo.getAttr(this.form_field, 'tabindex')) {
-            var ti = dojo.getAttr(this.form_field, 'tabindex');
-            dojo.setAttr(this.form_field, 'tabindex', -1);
+        if (dojo.attr(this.form_field, 'tabindex')) {
+            var ti = dojo.attr(this.form_field, 'tabindex');
+            dojo.attr(this.form_field, 'tabindex', -1);
 
             if (this.is_multiple) {
-                dojo.setAttr(this.search_field, 'tabindex', ti);
+                dojo.attr(this.search_field, 'tabindex', ti);
             } else {
-                dojo.setAttr(this.selected_item, 'tabindex', ti);
-                dojo.setAttr(this.search_field, 'tabindex', -1);
+                dojo.attr(this.selected_item, 'tabindex', ti);
+                dojo.attr(this.search_field, 'tabindex', -1);
             }
         }
     },
@@ -792,7 +803,7 @@ dojo.declare("Chosen", null, {
         dojo.addClass(el, 'search-choice');
 
 
-        el.innerHTML = '<span>' + dojo.getAttr(item, 'value') + '</span><a href="#" class="search-choice-close" rel="' + item.array_index + '"></a>';
+        el.innerHTML = '<span>' + dojo.attr(item, 'value') + '</span><a href="#" class="search-choice-close" rel="' + item.array_index + '"></a>';
 
         dojo.place(el, this.search_container, 'before');
 
@@ -814,7 +825,7 @@ dojo.declare("Chosen", null, {
         if (this.is_multiple && this.choices > 0 && this.search_field.value.length < 1) {
             this.results_hide();
         }
-        this.result_deselect(dojo.getAttr(link, "rel"));
+        this.result_deselect(dojo.attr(link, "rel"));
 
         dojo.destroy(dojo.query(link).parent('li')[0])
     },
@@ -839,20 +850,20 @@ dojo.declare("Chosen", null, {
 
     show_search_field_default:function () {
         if (this.is_multiple && this.choices < 1 && !this.active_field) {
-            dojo.setAttr(this.search_field, 'value', this.default_text);
+            dojo.attr(this.search_field, 'value', this.default_text);
             dojo.addClass(this.search_field, "default");
         } else {
-            dojo.setAttr(this.search_field, 'value', '');
+            dojo.attr(this.search_field, 'value', '');
             dojo.removeClass(this.search_field, "default");
         }
     },
 
 
     search_field_disabled:function () {
-        this.is_disabled = dojo.getAttr(this.form_field, 'disabled');
+        this.is_disabled = dojo.attr(this.form_field, 'disabled');
         if (this.is_disabled) {
             dojo.addClass(this.container, 'chzn-disabled');
-            dojo.setAttr(this.search_field, 'disabled', true);
+            dojo.attr(this.search_field, 'disabled', true);
             if (!this.is_multiple) {
                 if (!this.selected_item_focus_handle) {
                     dojo.disconnect(this.selected_item_focus_handle);
@@ -861,7 +872,7 @@ dojo.declare("Chosen", null, {
             this.close_field();
         } else {
             dojo.removeClass(this.container, 'chzn-disabled');
-            dojo.setAttr(this.search_field, 'disabled', false);
+            dojo.attr(this.search_field, 'disabled', false);
 
             if (!this.is_multiple) {
                 this.selected_item_focus_handle = dojo.connect(this.selected_item, "focus", this, 'activate_field');
@@ -873,8 +884,8 @@ dojo.declare("Chosen", null, {
         dojo.disconnect(this.document_click_handle);
 
         if (!this.is_multiple) {
-            dojo.setAttr(this.selected_item, 'tabindex', dojo.getAttr(this.search_field, 'tabindex'));
-            dojo.setAttr(this.search_field, 'tabindex', -1);
+            dojo.attr(this.selected_item, 'tabindex', dojo.attr(this.search_field, 'tabindex'));
+            dojo.attr(this.search_field, 'tabindex', -1);
         }
 
         this.active_field = false;
@@ -890,22 +901,22 @@ dojo.declare("Chosen", null, {
     winnow_results_clear:function () {
         _this = this;
 
-        dojo.setAttr(this.search_field, 'value', '');
+        dojo.attr(this.search_field, 'value', '');
 
         dojo.query('li', this.search_results).forEach(function (li) {
-            (dojo.hasClass(li, "group-result") || dojo.hasClass(li, "group-result-selectable")) ? dojo.setStyle(li, 'display', 'block') : !_this.is_multiple || !dojo.hasClass(li, "result-selected") ? _this.result_activate(li) : void 0;
+            (dojo.hasClass(li, "group-result") || dojo.hasClass(li, "group-result-selectable")) ? dojo.style(li, 'display', 'block') : !_this.is_multiple || !dojo.hasClass(li, "result-selected") ? _this.result_activate(li) : void 0;
         });
     },
 
     activate_field:function () {
         if (!this.is_multiple && !this.active_field) {
-            dojo.setAttr(this.search_field, 'tabindex', dojo.getAttr(this.selected_item, 'tabindex'));
-            dojo.setAttr(this.selected_item, 'tabindex', -1);
+            dojo.attr(this.search_field, 'tabindex', dojo.attr(this.selected_item, 'tabindex'));
+            dojo.attr(this.selected_item, 'tabindex', -1);
         }
         dojo.addClass(this.container, 'chzn-container-active');
         this.active_field = true;
 
-        dojo.setAttr(this.search_field, 'value', dojo.getAttr(this.search_field, 'value'));
+        dojo.attr(this.search_field, 'value', dojo.attr(this.search_field, 'value'));
 
         this.search_field.focus();
     },
@@ -957,7 +968,7 @@ dojo.declare("Chosen", null, {
                     top:'-1000px'
                 },
 
-                styles = dojo.getStyle(this.search_field);
+                styles = dojo.style(this.search_field);
 
             style_block['font-size'] = styles.fontSize;
             style_block['font-style'] = styles.fontStyle;
@@ -969,7 +980,7 @@ dojo.declare("Chosen", null, {
 
             var div = dojo.create('div', {
                 style:style_block,
-                innerHTML:dojo.getAttr(this.search_field, 'value')
+                innerHTML:dojo.attr(this.search_field, 'value')
             }, dojo.body());
 
 
@@ -980,9 +991,9 @@ dojo.declare("Chosen", null, {
                 w = this.f_width - 10;
             }
 
-            dojo.setStyle(this.search_field, 'width', w + 'px');
+            dojo.style(this.search_field, 'width', w + 'px');
             var dd_top = dojo.position(this.container).h;
-            dojo.setStyle(this.dropdown, 'top', dd_top + 'px');
+            dojo.style(this.dropdown, 'top', dd_top + 'px');
         }
     },
 
