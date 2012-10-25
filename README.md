@@ -2,7 +2,7 @@
 
 Chosen is a library for making long, unwieldy select boxes more user friendly.
 
-- Dojo: 1.7+
+- Dojo: 1.6+
 
 ### Chosen Dojo
 
