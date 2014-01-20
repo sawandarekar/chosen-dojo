@@ -8,7 +8,7 @@ dojo.extend(dojo.NodeList, {
                 return new chosen.Chosen(element, options);
             }
         });
-    },
+    }
 
 
 });
