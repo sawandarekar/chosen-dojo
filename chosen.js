@@ -8,9 +8,7 @@ dojo.extend(dojo.NodeList, {
                 return new chosen.Chosen(element, options);
             }
         });
-    },
-
-
+    }
 });
 
 function select_to_array() {
@@ -99,6 +97,7 @@ dojo.declare("chosen.Chosen", null, {
         this.choices = 0;
         this.result_single_selected = null;
         this.options = options != null ? options : {};
+		this.max_selected_options = ((options.max_selected_options != null)||(options.max_selected_options != undefined)) ? options.max_selected_options : 10000;
         this.results_none_found = dojo.attr(this.form_field, 'data-no_results_text') || this.options.no_results_text || "No results match";
         this.set_up_html();
         this.register_observers();
